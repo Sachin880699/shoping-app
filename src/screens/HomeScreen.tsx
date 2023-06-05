@@ -1,9 +1,15 @@
 import { View, Text, ScrollView, Image, TouchableOpacity, StyleSheet, FlatList } from 'react-native'
-import React, { useState } from 'react'
+import React, { useState,useRef, useCallback } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from "@react-navigation/native";
 import Icons from "@expo/vector-icons/MaterialCommunityIcons";
-import MasonryList from "reanimated-masonry-list"
+import MasonryList from "reanimated-masonry-list";
+import { BlurView } from 'expo-blur';
+import {
+    BottomSheetModal,
+    BottomSheetModalProvider,
+  } from '@gorhom/bottom-sheet';
+import CustomBackdrop from '../../components/CustomBackdrop';
 
 const CATEGORIES = [
     "Clothing",
@@ -13,13 +19,19 @@ const CATEGORIES = [
     "Accessories 2",
     "Accessories 2",
     "Accessories 2",
-    
+
 ]
 
 const AVATAR_URL = "https://images.unsplash.com/photo-1513956589380-bad6acb9b9d4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=387&q=80"
 const HomeScreen = () => {
     const { colors } = useTheme()
     const [categoryIndex, setCategoryIndex] = useState(0)
+    const bottomSheetModalRef = useRef<BottomSheetModal>(null);
+
+    // callbacks
+  const openFilterModal = useCallback(() => {
+    bottomSheetModalRef.current?.present();
+  }, []);
     return (
         <ScrollView>
             <SafeAreaView style={{ paddingVertical: 24, gap: 24 }}>
@@ -64,7 +76,9 @@ const HomeScreen = () => {
                         width: 52, aspectRatio: 1, alignItems: "center",
                         justifyContent: "center", borderRadius: 52,
                         backgroundColor: colors.primary
-                    }}>
+                    }}
+                    onPress={openFilterModal}
+                    >
                         <Icons name="tune" style={{ fontSize: 24 }} color={colors.background} />
                     </TouchableOpacity>
                 </View>
@@ -80,7 +94,10 @@ const HomeScreen = () => {
                         justifyContent: "space-between",
                         marginBottom: 12
                     }}>
-                        <Text style={{ fontSize: 20, fontWeight: "800" }}>New Collections</Text>
+                        <Text style={{
+                            fontSize: 20,
+                            fontWeight: "800"
+                        }}>New Collections</Text>
                         <TouchableOpacity>
                             <Text>See All</Text>
                         </TouchableOpacity>
@@ -93,7 +110,10 @@ const HomeScreen = () => {
                     }}>
                         {/* Card */}
                         <Card />
-                        <View style={{ flex: 1, gap: 12 }}>
+                        <View style={{
+                            flex: 1,
+                            gap: 12
+                        }}>
 
                             <Card />
                             <Card />
@@ -105,61 +125,126 @@ const HomeScreen = () => {
 
                 {/* Categories Section */}
                 <FlatList data={CATEGORIES}
-                 horizontal 
-                 showsHorizontalScrollIndicator={false}
-                 contentContainerStyle={{
-                    paddingHorizontal:16,
-                    gap:12,
-                 }}
-                renderItem={({ item,index}) => {
-                    const  isSelected = categoryIndex === index;
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={{
+                        paddingHorizontal: 16,
+                        gap: 12,
+                    }}
+                    renderItem={({ item, index }) => {
+                        const isSelected = categoryIndex === index;
 
 
-                    return(
-                        <TouchableOpacity onPress={()=>setCategoryIndex(index)} 
-                        style={{
-                            backgroundColor: isSelected ? colors.primary : colors.card,
-                            paddingHorizontal:24,
-                            paddingVertical:16,
-                            borderRadius:100,
-                            borderWidth: isSelected ? 0 : 1,
-                            borderColor: colors.border
-                        }}>
-                        <Text style={{
-                            color:isSelected ? colors.background : colors.text,
-                            fontWeight:"600",
-                            fontSize:16
-                        }}>{item}</Text>
-                    </TouchableOpacity>
-                    )
-                }}
-                 />
+                        return (
+                            <TouchableOpacity onPress={() => setCategoryIndex(index)}
+                                style={{
+                                    backgroundColor: isSelected ? colors.primary : colors.card,
+                                    paddingHorizontal: 24,
+                                    paddingVertical: 16,
+                                    borderRadius: 100,
+                                    borderWidth: isSelected ? 0 : 1,
+                                    borderColor: colors.border
+                                }}>
+                                <Text style={{
+                                    color: isSelected ? colors.background : colors.text,
+                                    fontWeight: "600",
+                                    fontSize: 16
+                                }}>{item}</Text>
+                            </TouchableOpacity>
+                        )
+                    }}
+                />
 
-                 {/* Mesonary  */}
-                 <MasonryList
-                    data={[1,2,3,54,7,5]}
+                {/* Mesonary  */}
+                <MasonryList
+                    data={[1, 2, 3, 54, 7, 5]}
                     keyExtractor={(item): string => item.id}
                     numColumns={2}
-                    contentContainerStyle={{paddingHorizontal:24}}
-                    
+                    contentContainerStyle={{ paddingHorizontal: 24 }}
+
                     showsVerticalScrollIndicator={false}
-                    renderItem={({item,i}) => 
-                    <View style={{
-                        aspectRatio:i===0 ? 1:2/3,
-                         position:"relative",
-                         marginTop:12,
-                         }}>
-                        <Image source ={{
-                            uri:"https://images.unsplash.com/photo-1610088441520-4352457e7095?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=387&q=80"
-                        }} resizeMode='cover' borderRadius={20}
-                        style={StyleSheet.absoluteFill}
-                        />
-                    </View> }
+                    renderItem={({ item, i }) =>
+                        <View style={{
+                            aspectRatio: i === 0 ? 1 : 2 / 3,
+                            position: "relative",
+                            marginTop: 12,
+
+                        }}>
+                            <Image source={{
+                                uri: "https://images.unsplash.com/photo-1492446845049-9c50cc313f00?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=387&q=80"
+                            }} resizeMode='cover'
+                                style={StyleSheet.absoluteFill}
+                            />
+                            <View style={[StyleSheet.absoluteFill, {
+                                padding: 16
+                            }]}>
+                                <View style={{
+                                    flexDirection: "row",
+                                    gap: 8
+                                }}>
+
+                                    <Text style={{
+                                        flex: 1,
+                                        fontSize: 14,
+                                        fontWeight: "600",
+                                        color: colors.text,
+
+                                    }}>
+                                        Puma Everyday Hussle
+                                    </Text>
+                                    <View style={{
+                                        backgroundColor: colors.background,
+                                        borderRadius: 100,
+                                        height: 32,
+                                        aspectRatio: 1,
+                                        alignItems: "center",
+                                        justifyContent: "center"
+                                    }}>
+                                        <Icons name="heart" size={20} color={colors.text} />
+                                    </View>
+                                </View>
+                                <View style={{ flex: 1 }} />
+                                <BlurView style={{
+                                    flexDirection: "row",
+                                    alignItems: "center",
+                                    backgroundColor: "rgba(0,0,0,0.5)",
+                                    padding:8,
+                                    overflow:"hidden",
+
+
+                                }}
+                                    intensity={20}
+
+                                >
+                                    <Text style={{
+                                        flex: 1,
+                                        fontSize: 16,
+                                        fontWeight: "600",
+                                        color: "#fff",
+                                        backgroundColor: "gray",
+                                    }} numberOfLines={1}>$160.00 </Text>
+
+                                    <TouchableOpacity >
+                                        <Icons name="shopping" size={20} color="#000" />
+                                    </TouchableOpacity>
+
+                                </BlurView>
+                            </View>
+
+                        </View>}
                     onEndReachedThreshold={0.1}
-                    />
+                />
 
 
             </SafeAreaView>
+            <BottomSheetModal snapPoints={['75%']} 
+            index={0} ref={bottomSheetModalRef}
+            backdropComponent={(props)=><CustomBackdrop {...props} />}
+            >
+
+            <Text>Bottom</Text>
+            </BottomSheetModal>
+            
         </ScrollView>
     )
 }

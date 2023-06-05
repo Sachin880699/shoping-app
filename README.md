@@ -1,3 +1,5 @@
 
 
-# Video at 1:17:39
+# Video at 1:40:11
+
+# npx expo start
